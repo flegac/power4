@@ -15,6 +15,10 @@ class Node:
         self.games = 0
         self._children = None
 
+    def best_move(self):
+        side_factor = 1 if self.state.board.current_turn % 2 == 0 else -1
+        return max(self.children(), key=lambda x: side_factor * x.exploitation_score())
+
     def children(self):
         if self._children is None:
             next_states = [self.state.copy().next(a) for a in self.state.actions()]
@@ -53,12 +57,13 @@ class MCTS:
 
         self.backpropagation_time = 0
 
-    def run(self, n):
+    def run(self, n, m=1):
         for i in range(0, n):
             initial = self.select(self.root)
             expansion = self.expand(initial)
-            reward = self.simulate(expansion)
-            self.backpropagation(expansion, reward)
+            for k in range(0, m):
+                reward = self.simulate(expansion)
+                self.backpropagation(expansion, reward)
 
     def select(self, initial_node: Node) -> Node:
         start = time.time()

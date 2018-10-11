@@ -1,22 +1,18 @@
-import sys
-import time
-
 from src.games.util.mcts import MCTS
-from src.power4.Power4 import P4Rules, P4Board
-
-import cProfile
+from src.power4.Power4 import P4Rules
 
 
 def power4_play(player_side):
     level = int(input('choose level : [1-10]'))
     level = max(level, 1)
-    level = min(level, 10)
-    playouts = 1000 * level
+    level = min(level, 100)
+    playouts = 100 * level
 
     print('Computer will simulate {} games before playing !'.format(playouts))
 
     state = P4Rules.start()
     while not state.is_terminal:
+        mcts = MCTS(state=state)
         print(' [0 1 2 3 4 5 6]')
         print(state)
         print(' [0 1 2 3 4 5 6]')
@@ -32,8 +28,7 @@ def power4_play(player_side):
             state.next(player_action)
         else:
             print('thinking ...')
-            mcts = MCTS(state=state)
-            mcts.run(playouts)
+            mcts.run(n=playouts, m=10)
             print('tree final size: {}'.format(len(mcts.tree)))
             print('games : ', mcts.games)
             print('scores :')
@@ -45,9 +40,7 @@ def power4_play(player_side):
                 mcts.expand_time,
                 mcts.simulate_time,
                 mcts.backpropagation_time))
-            side_factor = 1 if current_side == player_side else -1
-            child = max(mcts.root.children(),
-                        key=lambda x: side_factor * x.exploitation_score())
+            child = mcts.root.best_move()
             state = child.state
     print(state)
     print('result : {}'.format(state.terminal_result))
@@ -62,6 +55,6 @@ def power4_play(player_side):
 # cProfile.run('test_mcts()')
 
 try:
-    power4_play(player_side=0)
+    power4_play(player_side=None)
 except Exception as e:
     print(e)

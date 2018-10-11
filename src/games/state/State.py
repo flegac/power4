@@ -6,7 +6,6 @@ class State:
     def __init__(self, rules: Rules, board: Board) -> None:
         self.rules = rules
         self.board = board
-        self._data = {}
         self.is_terminal = False
         self.terminal_result = None
 
@@ -24,17 +23,6 @@ class State:
         state.is_terminal = self.is_terminal
         state.terminal_result = self.terminal_result
         return state
-
-    def get(self, attr: str = None):
-        if attr:
-            return self._data[attr]
-        return self._data
-
-    def set(self, attr: str = None, value=None, state: dict = None):
-        if attr and value:
-            self._data[attr] = value
-        if state:
-            self._data = state
 
     def __str__(self) -> str:
         return str(self.board)
