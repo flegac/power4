@@ -3,11 +3,22 @@ from src.games.util.mcts import MCTS
 
 
 class Policy:
+
+    def __init__(self, name: str) -> None:
+        super().__init__()
+        self._name = name
+
     def play(self, state: State) -> int:
         raise NotImplementedError()
 
+    def name(self):
+        return self._name
+
 
 class Human(Policy):
+    def __init__(self, name: str) -> None:
+        super().__init__(name)
+
     def play(self, state: State) -> int:
         actions = state.actions()
         player_action = None
@@ -21,14 +32,14 @@ class Human(Policy):
 
 class MctsPolicy(Policy):
 
-    def __init__(self, n) -> None:
-        super().__init__()
+    def __init__(self, n: int) -> None:
+        super().__init__('mcts_{}'.format(n))
         self.n = n
 
     def play(self, state: State) -> int:
-        print('thinking ...')
+        # print('thinking ...')
         mcts = MCTS(state=state)
         mcts.run(self.n)
-        mcts.stats()
+        # mcts.stats()
         action = mcts.root.best_move()
         return action

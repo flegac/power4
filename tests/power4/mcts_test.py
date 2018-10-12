@@ -6,7 +6,7 @@ from src.power4.P4Rules import P4Rules
 playouts = 500
 print('Computer will simulate {} games before playing !'.format(playouts))
 
-human = Human()
+human = Human('human')
 computer = MctsPolicy(n=playouts)
 
 

@@ -3,18 +3,17 @@ from functools import reduce
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src.games.Policy import Policy
+from src.games.Policy import MctsPolicy
 from src.games.Tournament import Tournament
 from src.power4.P4Rules import P4Rules
 
 evaluator = None
 
-player = Policy(evaluator, depth=3, exploration=0.33)
-players = [player] * 2
+players = [MctsPolicy(n=100 * i) for i in range(1, 4)]
 
 state = P4Rules.start()
 
-tournament = Tournament(state, game_per_player=20)
+tournament = Tournament(state, game_per_player=3)
 tournament.set_players(*players)
 tournament.run()
 
@@ -33,6 +32,9 @@ print('max length: ', l_max)
 print('avg length: ', avg)
 print('total games: ', len(game_lengths))
 print('total _positions: ', avg * len(game_lengths))
+
+for player in sorted(tournament.players, key=lambda x: x.score):
+    print('{} : {}/{}'.format(player.name(), player.score, player.games))
 
 mu, sigma = 200, 25
 x = mu + sigma * np.random.randn(10000)
