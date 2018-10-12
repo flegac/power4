@@ -3,7 +3,7 @@ from src.games.Policy import Human, MctsPolicy
 from src.games.state.State import State
 from src.power4.P4Rules import P4Rules
 
-playouts = 1500
+playouts = 500
 print('Computer will simulate {} games before playing !'.format(playouts))
 
 human = Human()

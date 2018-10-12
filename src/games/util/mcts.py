@@ -12,7 +12,7 @@ class MCTS:
             node = Node(state)
         self.root = node
         self.tree = {self.root}
-        self.games = [0] * 50
+        self.depth = 0
 
         self.select_time = 0
         self.expand_time = 0
@@ -58,7 +58,7 @@ class MCTS:
             self.expand_time += time.time() - start
             return node
         if node.games == 0:
-            self.tree.add(node)
+            self._register_node(node)
             self.expand_time += time.time() - start
             return node
         try:
@@ -66,9 +66,13 @@ class MCTS:
             child = random.choice(list(children.values()))
         except Exception as e:
             raise e
-        self.tree.add(child)
+        self._register_node(child)
         self.expand_time += time.time() - start
         return child
+
+    def _register_node(self, node: Node):
+        self.tree.add(node)
+        self.depth = max(self.depth, node.depth)
 
     def simulate(self, node: Node):
         start = time.time()
@@ -89,16 +93,14 @@ class MCTS:
             node.score += score
             node.games += 1
             node = node.parent
-            self.games[depth] += 1
             depth += 1
         node.score += score
         node.games += 1
-        self.games[depth] += 1
         self.backpropagation_time += time.time() - start
 
     def stats(self):
         print('tree final size: {}'.format(len(self.tree)))
-        print('games : ', self.games)
+        print('tree depth : ', self.depth)
         print('scores :')
         for action in self.root.children():
             print('{} : {}'.format(action, self.root.children()[action]))
