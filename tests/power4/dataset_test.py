@@ -1,24 +1,19 @@
-import os
-
 from src.dataset.dataset import Dataset
 
-current_path = os.getcwd()
-root_path = os.path.join(current_path, 'dataset', 'dataset.txt')
+X_array = [
+    [0, 1, 55, 3, 4],
+    [4, 3, 2, 1, 0]
+]
 
-print('root_path: ', os.path.dirname(root_path))
+Y_array = [
+    [1, 2, 3],
+    [4, 5, 6]
+]
 
-db = Dataset(root_path, x_size=5, y_size=3)
+db = Dataset()
 
-X = list(range(0, 5))
-Y = list(range(0, 3))
+db.write(X_array, Y_array)
 
-db.save(X, Y)
-db.save(X, Y)
-db.save(X, Y)
-db.save(X, Y)
-db.save(X, Y)
+data = db.read()
 
-
-x, y = db.load()
-print('x=', x)
-print('y=', y)
+print(data)
