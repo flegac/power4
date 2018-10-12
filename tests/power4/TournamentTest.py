@@ -1,12 +1,15 @@
 from functools import reduce
-from src.games.Player import Player
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 
-from src.power4.Power4 import EvaluatorP4, P4Rules
+from src.games.Policy import Policy
 from src.games.Tournament import Tournament
+from src.power4.P4Rules import P4Rules
 
-player = Player(EvaluatorP4(), depth=3, exploration=0.33)
+evaluator = None
+
+player = Policy(evaluator, depth=3, exploration=0.33)
 players = [player] * 2
 
 state = P4Rules.start()

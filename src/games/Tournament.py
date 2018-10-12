@@ -2,7 +2,7 @@ import itertools
 
 from src.games.Game import Game
 from src.games.state.State import State
-from src.games.Player import Player
+from src.games.Policy import Policy
 
 
 class Tournament:
@@ -12,7 +12,7 @@ class Tournament:
         self.game_per_player = game_per_player
         self.players = []
 
-    def set_players(self, *players: [Player]):
+    def set_players(self, *players: [Policy]):
         self.players = players
 
     def run(self):
