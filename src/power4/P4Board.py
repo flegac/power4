@@ -17,6 +17,9 @@ class P4Board(Board):
         self.heights = heights
         self.current_turn = current_turn
 
+    def id(self):
+        return str(self.grid)
+
     def copy(self):
         return P4Board(np.copy(self.grid), np.copy(self.heights), self.current_turn)
 

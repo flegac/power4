@@ -19,6 +19,8 @@ class Game:
             self.before_play(self.state)
             current_player = self.policies[current_turn % 2]
             action = current_player.play(self.state)
+            for p in set(self.policies):
+                p.update(action)
             self.history.append(action)
             self.state.apply(action)
             current_turn += 1

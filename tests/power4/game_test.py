@@ -1,13 +1,10 @@
 from src.games.Game import Game
-from src.games.Policy import Human, MctsPolicy
+from src.games.Policy import Human, MctsPolicy, MctsPolicy2
 from src.games.state.State import State
 from src.power4.P4Rules import P4Rules
 
-playouts = 1500
-print('Computer will simulate {} games before playing !'.format(playouts))
-
 human = Human('human')
-computer = MctsPolicy(n=playouts)
+computer = MctsPolicy2(n=2000, after_play=lambda mcts: print(mcts))
 
 
 def show_state(state: State):
@@ -20,7 +17,7 @@ def power4_play():
     player1 = computer
     player2 = computer
 
-    game = Game(P4Rules.start(), player1, player2, before_play=show_state)
+    game = Game(P4Rules.initial_state(), player1, player2, before_play=show_state)
     game.run()
 
     print(game.state)

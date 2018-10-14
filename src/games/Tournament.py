@@ -8,36 +8,33 @@ from src.games.Policy import Policy
 import matplotlib.pyplot as plt
 
 
-def _do_nothing(game: Game):
-    pass
-
-
 def _show_game(game: Game):
     print(str(game) + '\n')
 
 
 class Tournament:
-    def __init__(self, state: State, game_per_player: int,
+    def __init__(self,
+                 initial_state: State,
                  end_game_callback=_show_game) -> None:
-        self.state = state
-        self.game_per_player = game_per_player
+        self.initial_state = initial_state
         self.players = []
         self.end_game_callback = end_game_callback
         self.game_lengths = {}
 
-    def set_players(self, *players: [Policy]):
+    def with_players(self, *players: [Policy]):
         self.players = players
         for player in players:
             player.victories = 0
             player.defeats = 0
             player.games = 0
             player.score = 0
+        return self
 
-    def run(self):
+    def run(self, game_per_player: int):
         for pair in itertools.combinations(self.players, 2):
             p1, p2 = pair
-            for i in range(2 * self.game_per_player):
-                game = Game(self.state.copy(), p1, p2)
+            for i in range(2 * game_per_player):
+                game = Game(self.initial_state.copy(), p1, p2)
                 game.run()
 
                 self.update_scores(game)
@@ -49,6 +46,7 @@ class Tournament:
 
                 self.end_game_callback(game)
                 p1, p2 = p2, p1
+        return self
 
     def update_scores(self, game):
         p1, p2 = game.policies
