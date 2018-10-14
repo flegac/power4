@@ -12,11 +12,11 @@ class State:
     def actions(self) -> []:
         return self.rules.actions(self)
 
-    def next(self, action):
-        return self.rules.next(self, action)
+    def apply(self, action):
+        return self.rules.apply(self, action)
 
-    def undo(self, last_action):
-        return self.rules.undo(self, last_action)
+    def next(self, action):
+        return self.copy().apply(action)
 
     def copy(self):
         state = State(self.rules, self.board.copy())

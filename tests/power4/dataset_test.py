@@ -1,4 +1,4 @@
-from src.dataset.dataset import Dataset
+from src.deep.dataset import Dataset
 
 X_array = [
     [0, 1, 55, 3, 4],

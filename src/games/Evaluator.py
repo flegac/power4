@@ -1,5 +1,5 @@
 from src.games.state.State import State
-from src.games.util.mcts import MCTS
+from src.games.util.Mcts import Mcts
 
 
 class Evaluator:
@@ -15,5 +15,5 @@ class MctsEvaluator:
         self.n = n
 
     def eval(self, state: State) -> [float]:
-        mcts = MCTS(state=state)
+        mcts = Mcts(initial_state=state)
         mcts.run(self.n)

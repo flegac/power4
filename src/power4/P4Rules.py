@@ -10,7 +10,7 @@ from src.power4.P4Board import P4Board
 class P4Rules(Rules):
 
     @staticmethod
-    def start():
+    def initial_state():
         return State(P4Rules(), P4Board())
 
     @staticmethod
@@ -19,7 +19,7 @@ class P4Rules(Rules):
         return list(actions)
 
     @staticmethod
-    def next(state, action):
+    def apply(state, action):
         if not P4Rules.is_valid(state)(action):
             raise ValueError("invalid play : {}".format(action))
         height = state.board.heights[action]

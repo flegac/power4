@@ -1,32 +1,21 @@
-from src.games.Game import Game
 from src.games.Policy import Human, MctsPolicy
-from src.games.state.State import State
+from src.games.util.Mcts import Mcts
 from src.power4.P4Rules import P4Rules
 
 playouts = 500
 print('Computer will simulate {} games before playing !'.format(playouts))
 
-human = Human('human')
-computer = MctsPolicy(n=playouts)
+state = P4Rules.initial_state()
 
+mcts = Mcts(initial_state=state)
 
-def show_state(state: State):
-    print(' [0 1 2 3 4 5 6]')
+while not state.is_terminal:
     print(state)
-    print(' [0 1 2 3 4 5 6]')
+    time_spent = mcts.run(playouts - mcts.root_node.games)
+    print('time spent: {}'.format(time_spent))
+    mcts.stats()
+    action = mcts.root_node.best_action()
+    state.apply(action)
 
-
-def power4_play():
-    player1 = human
-    player2 = computer
-
-    game = Game(P4Rules.start(), player1, player2, turn_callback=show_state)
-    game.run()
-
-    print(game.state)
-    print('result : {}'.format(game.state.terminal_result))
-
-
-# cProfile.run('test_mcts()')
-
-power4_play()
+    next_node = mcts.root_node.children()[action]
+    mcts = Mcts(root_node=next_node)

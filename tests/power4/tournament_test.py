@@ -1,42 +1,15 @@
-from functools import reduce
-
-import matplotlib.pyplot as plt
-import numpy as np
-
 from src.games.Policy import MctsPolicy
 from src.games.Tournament import Tournament
 from src.power4.P4Rules import P4Rules
 
 evaluator = None
 
-players = [MctsPolicy(n=100 * i) for i in range(1, 4)]
+players = [MctsPolicy(n=100 + 1000 * i) for i in range(0, 2)]
 
 state = P4Rules.start()
 
-tournament = Tournament(state, game_per_player=3)
+tournament = Tournament(state, game_per_player=5)
 tournament.set_players(*players)
 tournament.run()
 
-print('done')
-
-for game in tournament.games:
-    print(len(game), ' ', game)
-
-game_lengths = [len(x) for x in tournament.games]
-l_min = reduce(lambda x, y: min(x, y), game_lengths)
-l_max = reduce(lambda x, y: max(x, y), game_lengths)
-avg = reduce(lambda x, y: x + y, game_lengths) / len(game_lengths)
-
-print('min length: ', l_min)
-print('max length: ', l_max)
-print('avg length: ', avg)
-print('total games: ', len(game_lengths))
-print('total _positions: ', avg * len(game_lengths))
-
-for player in sorted(tournament.players, key=lambda x: x.score):
-    print('{} : {}/{}'.format(player.name(), player.score, player.games))
-
-mu, sigma = 200, 25
-x = mu + sigma * np.random.randn(10000)
-n, bins, patches = plt.hist(game_lengths)
-plt.show()
+tournament.stats()

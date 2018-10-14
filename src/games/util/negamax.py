@@ -27,9 +27,9 @@ class NegamaxEvaluator(Evaluator):
         actions = state.actions()
         if random.random() < self.exploration:
             action = actions[random.randrange(0, len(actions))]
-            state.next(action)
+            state.apply(action)
         else:
-            choices_dict = {a: negamax(self.evaluator, state.copy().next(a), self.depth, 1) for a in actions}
+            choices_dict = {a: negamax(self.evaluator, state.next(a), self.depth, 1) for a in actions}
             action = max(choices_dict, key=choices_dict.get)
-            state.next(action)
+            state.apply(action)
         return action

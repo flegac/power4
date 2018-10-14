@@ -1,12 +1,13 @@
 class Rules:
+
+    @staticmethod
+    def initial_state():
+        raise NotImplementedError()
+
     @staticmethod
     def actions(state) -> []:
         raise NotImplementedError()
 
     @staticmethod
-    def next(state, action):
-        raise NotImplementedError()
-
-    @staticmethod
-    def undo(state, last_action):
+    def apply(state, action):
         raise NotImplementedError()
