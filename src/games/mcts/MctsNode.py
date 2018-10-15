@@ -28,11 +28,22 @@ class MctsNode:
             self._children = {a: MctsNode(state=next_states[a], parent=self) for a in next_states}
         return self._children
 
+    def side_exploitation_score(self):
+        side = -1 if self.state.board.current_turn % 2 == 0 else 1
+        return side * self.exploitation_score()
+
     def exploitation_score(self):
+
+        # terminal states scores are certain (so score is better)
         if self.state.is_terminal:
-            return self.state.terminal_result
-        exploitation = self.score / self.games if self.games != 0 else 0
-        return exploitation
+            return 10 * self.state.terminal_result
+
+        # unknown states are like a draw
+        if self.games == 0:
+            return 0
+
+        #  exploitation score computing
+        return self.score / self.games
 
     def exploration_score(self):
         return sqrt(log2(self.parent.games) / max(self.games, 1)) if self.parent else 0

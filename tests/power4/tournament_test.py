@@ -6,7 +6,7 @@ evaluator = None
 
 tournament = Tournament(P4Rules.initial_state())
 
-players = [MctsPolicy(n=100 + 1000 * i) for i in range(0, 2)]
+players = [MctsPolicy(n=2000 * (1 + i)) for i in range(0, 2)]
 
 tournament \
     .with_players(*players) \

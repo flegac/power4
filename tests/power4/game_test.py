@@ -4,7 +4,7 @@ from src.games.state.State import State
 from src.power4.P4Rules import P4Rules
 
 human = Human('human')
-computer = MctsPolicy2(n=2000, after_play=lambda mcts: print(mcts))
+computer = MctsPolicy2(n=250, after_play=lambda mcts: print(mcts))
 
 
 def show_state(state: State):
@@ -23,6 +23,8 @@ def power4_play():
     print(game.state)
     print('result : {}'.format(game.state.terminal_result))
 
+    x = game.state.board.to_training()
+    print(x)
 
 # cProfile.run('test_mcts()')
 

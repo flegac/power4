@@ -1,7 +1,7 @@
 import pprint
 import random
 
-from src.games.mcts.TreeStats import TreeStats
+from src.games.mcts.MctsTree import MctsTree
 from src.games.state.State import State
 import time
 
@@ -31,7 +31,7 @@ class Mcts:
     def __init__(self, initial_state: State = None, root_node: MctsNode = None) -> None:
         if root_node is None:
             root_node = MctsNode(initial_state)
-        self.tree = TreeStats(root_node)
+        self.tree = MctsTree(root_node)
         self.stats = MctsRun()
 
     def run(self, n):
@@ -48,22 +48,14 @@ class Mcts:
     def select(self) -> MctsNode:
         start = time.time()
 
-        def side_exploitation_score(node: MctsNode):
-            side = -1 if node.state.board.current_turn % 2 == 0 else 1
-            return side * node.exploitation_score()
-
         def node_score(node: MctsNode):
-            return side_exploitation_score(node) + node.exploration_score()
+            return node.side_exploitation_score() + node.exploration_score()
 
         current = self.tree.root
         while current.games > 0 and not current.state.is_terminal:
             candidates = current.children().values()
-
-            next_current = max(candidates, key=side_exploitation_score)
-            if next_current.state.is_terminal:
-                break
-
             next_current = max(candidates, key=node_score)
+            assert next_current != current
             if next_current == current:
                 break
             current = next_current
@@ -86,14 +78,15 @@ class Mcts:
     def simulate(self, node: MctsNode):
         start = time.time()
         if node.state.is_terminal:
-            self.stats.simulate_time += time.time() - start
-            return node.state.terminal_result
-        current = node.state.copy()
-        while not current.is_terminal:
-            action = random.choice(current.actions())
-            current.apply(action)
+            reward = node.state.terminal_result
+        else:
+            current = node.state.copy()
+            while not current.is_terminal:
+                action = random.choice(current.actions())
+                current.apply(action)
+            reward = current.terminal_result
         self.stats.simulate_time += time.time() - start
-        return current.terminal_result
+        return reward
 
     def backpropagation(self, node: MctsNode, score):
         start = time.time()

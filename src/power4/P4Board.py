@@ -25,3 +25,11 @@ class P4Board(Board):
 
     def __str__(self) -> str:
         return str(np.rot90(self.grid)).replace('0', '.').replace('1', 'O').replace('2', 'X')
+
+    def to_training(self):
+        p1_func = np.vectorize(lambda x: 1 if (x % 3) == 1 else 0)
+        p1 = p1_func(self.grid)
+
+        p2_func = np.vectorize(lambda x: 1 if (x % 3) == 2 else 0)
+        p2 = p2_func(self.grid)
+        return np.array([p1, p2], dtype=np.float32)

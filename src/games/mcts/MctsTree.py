@@ -3,7 +3,7 @@ import pprint
 from src.games.mcts.MctsNode import MctsNode
 
 
-class TreeStats:
+class MctsTree:
     def __init__(self, root: MctsNode) -> None:
         self.root = root
         self.tree = {root}
