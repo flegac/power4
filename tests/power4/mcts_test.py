@@ -10,8 +10,8 @@ mcts = Mcts(initial_state=state)
 
 while not state.is_terminal:
     print(state)
-    time_spent = mcts.run(playouts)
-    print('time spent: {}'.format(time_spent))
+    mcts.run(playouts)
+    print('time spent: {}'.format(mcts.stats.run_time))
     print(mcts)
     action = mcts.tree.root.best_action()
     state.apply(action)

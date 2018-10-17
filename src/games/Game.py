@@ -7,16 +7,15 @@ def _do_nothing(state: State):
 
 
 class Game:
-    def __init__(self, state: State, p1: Policy, p2: Policy, before_play=_do_nothing) -> None:
+    def __init__(self, state: State, p1: Policy, p2: Policy) -> None:
         self.policies = [p1, p2]
         self.state = state
         self.history = []
-        self.before_play = before_play
 
-    def run(self):
+    def run(self, on_state_change=_do_nothing):
         current_turn = 0
         while not self.state.is_terminal:
-            self.before_play(self.state)
+            on_state_change(self.state)
             current_player = self.policies[current_turn % 2]
             action = current_player.play(self.state)
             for p in set(self.policies):
@@ -24,6 +23,7 @@ class Game:
             self.history.append(action)
             self.state.apply(action)
             current_turn += 1
+        on_state_change(self.state)
         return self
 
     def __repr__(self) -> str:

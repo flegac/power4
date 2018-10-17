@@ -17,10 +17,9 @@ def power4_play():
     player1 = computer
     player2 = computer
 
-    game = Game(P4Rules.initial_state(), player1, player2, before_play=show_state)
+    game = Game(P4Rules.initial_state(), player1, player2, on_state_change=show_state)
     game.run()
 
-    print(game.state)
     print('result : {}'.format(game.state.terminal_result))
 
     x = game.state.board.to_training()

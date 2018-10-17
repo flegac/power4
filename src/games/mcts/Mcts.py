@@ -41,9 +41,8 @@ class Mcts:
             expansion = self.expand(selected)
             reward = self.simulate(expansion)
             self.backpropagation(expansion, reward)
-        delta = time.time() - start
-        self.stats.run_time += delta
-        return delta
+        self.stats.run_time += (time.time() - start)
+        return self
 
     def select(self) -> MctsNode:
         start = time.time()
