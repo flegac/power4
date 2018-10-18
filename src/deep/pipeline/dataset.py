@@ -1,12 +1,15 @@
-import tensorflow as tf
+import numpy
 import numpy as np
+import tensorflow as tf
 
 
+# https://medium.com/ymedialabs-innovation/how-to-use-tfrecord-with-datasets-and-iterators-in-tensorflow-with-code-samples-ffee57d298af
 class Dataset:
-    def __init__(self) -> None:
-        self.filename = 'train.tfrecords'
 
-    def write(self, X, Y):
+    def __init__(self, filename='my_data.tfrecords') -> None:
+        self.filename = filename
+
+    def write(self, X: np.ndarray, Y: np.ndarray):
         with tf.python_io.TFRecordWriter(self.filename) as writer:
             for i in range(0, len(X)):
                 example = tf.train.Example(
@@ -20,26 +23,34 @@ class Dataset:
                 writer.write(example.SerializeToString())
 
     def read(self):
-        dataset = []
+        X = []
+        Y = []
 
         record_iterator = tf.python_io.tf_record_iterator(path=self.filename)
         for string_record in record_iterator:
             example = tf.train.Example()
             example.ParseFromString(string_record)
 
-            x_shape = example.features.feature['X_shape'].int64_list.value
-            y_shape = example.features.feature['Y_shape'].int64_list.value
+            x = self.read_feature(example, 'X')
+            y = self.read_feature(example, 'Y')
 
-            x = example.features.feature['X'].bytes_list.value[0]
-            x = np.fromstring(x, dtype=np.float32)
-            x = x.reshape(x_shape)
+            X.append(x)
+            Y.append(y)
 
-            y = example.features.feature['Y'].bytes_list.value[0]
-            y = np.fromstring(y, dtype=np.float32)
-            y = y.reshape(y_shape)
-            dataset.append((x, y))
+        X = np.array(X)
+        X = np.rollaxis(X, 1, 4)
 
-        return dataset
+        Y = np.array(Y)
+        return {
+            'X': X,
+            'Y': Y
+        }
+
+    def read_feature(self, example: tf.train.Example, name: str):
+        shape = example.features.feature['{}_shape'.format(name)].int64_list.value
+        feat = example.features.feature[name].bytes_list.value[0]
+        feat = numpy.frombuffer(feat, dtype=np.float32).reshape(shape)
+        return feat
 
 
 def _float_feature(value):

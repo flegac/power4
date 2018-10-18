@@ -11,9 +11,8 @@ from src.deep.MyModel import MyModel
 
 
 class MyTrainer:
-    def __init__(self, training: MyDataset, validation: MyDataset) -> None:
+    def __init__(self, training: MyDataset) -> None:
         self.training = training
-        self.validation = validation
         self.last_history = None
         self.total_epochs = 0
         self.devices = device_lib.list_local_devices()
@@ -32,10 +31,6 @@ class MyTrainer:
         training_flow = self.training.generator(model.img_width, model.img_height,
                                                 training_config.batch_size,
                                                 **training_config.augmentation)
-        validation_flow = self.validation.generator(model.img_width, model.img_height,
-                                                    training_config.batch_size)
-
-        file_path = MyModel._path(model.name)
 
         json_log = open('training_logs.json', mode='wt', buffering=1)
         log_callback = keras.callbacks.LambdaCallback(
@@ -51,11 +46,7 @@ class MyTrainer:
                 epochs=training_config.epochs,
                 shuffle=True,
                 verbose=training_config.verbose,
-                validation_data=validation_flow,
                 callbacks=[
-                    keras.callbacks.ModelCheckpoint(file_path, monitor='val_loss', verbose=0, save_best_only=True,
-                                                    save_weights_only=False, mode='auto', period=1),
-                    # keras.callbacks.EarlyStopping(monitor='val_loss', patience=1, verbose=0, mode='auto')
                     log_callback
                 ]
             )

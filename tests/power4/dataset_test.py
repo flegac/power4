@@ -1,19 +1,22 @@
 from src.deep.pipeline.dataset import Dataset
+import numpy as np
 
-X_array = [
-    [0, 1, 55, 3, 4],
-    [4, 3, 2, 1, 0]
-]
+N = 1000
+B = 3
+W = 19
+H = 19
 
-Y_array = [
-    [1, 2, 3],
-    [4, 5, 6]
-]
+x_shape = [N, B, H, W]
+X = np.random.random(x_shape).astype(np.float32)
+
+y_shape = [N, W]
+Y = np.random.random(y_shape).astype(np.float32)
 
 db = Dataset()
+db.write(X, Y)
 
-db.write(X_array, Y_array)
+dataset = db.read()
 
-data = db.read()
-
-print(data)
+for x in dataset:
+    print(x[0])
+    print(x[1])

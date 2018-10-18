@@ -12,14 +12,14 @@ from src.power4.P4Rules import P4Rules
 
 def gen_state(policy=None):
     if not policy:
-        policy = MctsPolicy2(n=33)
+        policy = MctsPolicy2(n=25)
     history = []
     Game(P4Rules.initial_state(), policy, policy).run(on_state_change=lambda state: history.append(state.copy()))
-    return random.choice(history)
+    return history[-1]  # random.choice(history[-5:])
 
 
 def state_to_sample(state: State):
-    mcts = Mcts(state).run(200)
+    mcts = Mcts(state).run(12)
     evaluation = mcts.tree.root.children()
 
     x = state.board.to_training()
@@ -29,7 +29,7 @@ def state_to_sample(state: State):
     return x, np.array(y).astype(np.float32)
 
 
-def sample_generator(n=10):
+def sample_generator(n):
     X = []
     Y = []
     for i in range(0, n):
@@ -42,10 +42,11 @@ def sample_generator(n=10):
     return X, Y
 
 
-X, Y = sample_generator(10)
-Dataset().write(X, Y)
+X, Y = sample_generator(10000)
+db = Dataset('p4_dataset_endgames.tfrecords')
+
+db.write(X, Y)
 print('done !!')
 
-#
 # Z = db.read()
 # print(Z)

@@ -4,8 +4,8 @@ import json
 class TrainingConfig:
 
     def __init__(self, epochs, batch_size=32,
-                 loss='categorical_crossentropy',
-                 optimizer='adam',
+                 loss='mean_squared_error',
+                 optimizer='sgd',
                  metrics=None) -> None:
         if metrics is None:
             metrics = ['acc']
@@ -18,13 +18,13 @@ class TrainingConfig:
         self.verbose = 2
 
         self.augmentation = {
-            'rotation_range': 40,
-            'width_shift_range': 0.2,
-            'height_shift_range': 0.2,
-            'shear_range': 0.2,
-            'zoom_range': 0.2,
-            'horizontal_flip': True,
-            'fill_mode': 'nearest'
+            # 'rotation_range': 40,
+            # 'width_shift_range': 0.2,
+            # 'height_shift_range': 0.2,
+            # 'shear_range': 0.2,
+            # 'zoom_range': 0.2,
+            # 'horizontal_flip': True,
+            # 'fill_mode': 'nearest'
         }
 
     def __str__(self):

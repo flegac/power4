@@ -15,6 +15,7 @@ class MyModel:
     def save(self, name=None):
         if name is None:
             name = self.name
+        os.makedirs(MyModel._path(os.path.basename(name)))
         self.model.save(MyModel._path(name))
 
     def __init__(self, name: str, model) -> None:
