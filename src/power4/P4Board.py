@@ -7,7 +7,7 @@ class P4Board(Board):
     GRID_WIDTH = 7
     GRID_HEIGHT = 6
 
-    def __init__(self, grid=None, heights=None, current_turn=0) -> None:
+    def __init__(self, grid: np.ndarray = None, heights: np.ndarray = None, current_turn: int = 0) -> None:
         super().__init__()
         if grid is None:
             grid = np.zeros((P4Board.GRID_WIDTH, P4Board.GRID_HEIGHT), dtype=np.int8)
@@ -27,9 +27,13 @@ class P4Board(Board):
         return str(np.rot90(self.grid)).replace('0', '.').replace('1', 'O').replace('2', 'X')
 
     def to_training(self):
-        p1_func = np.vectorize(lambda x: 1 if (x % 3) == 1 else 0)
+        p1_func = np.vectorize(lambda x: 1.0 if (x % 3) == 1 else 0)
         p1 = p1_func(self.grid)
 
-        p2_func = np.vectorize(lambda x: 1 if (x % 3) == 2 else 0)
+        p2_func = np.vectorize(lambda x: -1.0 if (x % 3) == 2 else 0)
         p2 = p2_func(self.grid)
-        return np.array([p1, p2], dtype=np.float32)
+
+        side = 1 if self.current_turn % 2 == 0 else -1
+        initiative_side = np.full((P4Board.GRID_WIDTH, P4Board.GRID_HEIGHT), side)
+
+        return np.array([p1, p2, initiative_side], dtype=np.float32)

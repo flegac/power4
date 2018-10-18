@@ -33,6 +33,8 @@ class Mcts:
             root_node = MctsNode(initial_state)
         self.tree = MctsTree(root_node)
         self.stats = MctsRun()
+        self.selection_policy = lambda node: node.side_exploitation_score() + node.exploration_score()
+        self.simulation_policy = lambda state: random.choice(state.actions())
 
     def run(self, n):
         start = time.time()
@@ -47,13 +49,10 @@ class Mcts:
     def select(self) -> MctsNode:
         start = time.time()
 
-        def node_score(node: MctsNode):
-            return node.side_exploitation_score() + node.exploration_score()
-
         current = self.tree.root
         while current.games > 0 and not current.state.is_terminal:
             candidates = current.children().values()
-            next_current = max(candidates, key=node_score)
+            next_current = max(candidates, key=self.selection_policy)
             assert next_current != current
             if next_current == current:
                 break
@@ -81,7 +80,7 @@ class Mcts:
         else:
             current = node.state.copy()
             while not current.is_terminal:
-                action = random.choice(current.actions())
+                action = self.simulation_policy(current)
                 current.apply(action)
             reward = current.terminal_result
         self.stats.simulate_time += time.time() - start
