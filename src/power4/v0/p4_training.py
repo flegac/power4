@@ -8,12 +8,12 @@ from src.power4.v0.P4Model import P4Model
 
 training_config = TrainingConfig(epochs=10000000,
                                  batch_size=512,
-                                 # optimizer='adam'
-                                 optimizer=optimizers.SGD(lr=1e-6, momentum=0.9)
+                                 optimizer='adam'
+                                 # optimizer=optimizers.SGD(lr=1e-6, momentum=0.9)
                                  )
 training_config.verbose = 2
 
-filename = 'p4_testing_10.tfrecords'
+filename = 'p4_fat_77000.tfrecords'
 
 model = P4Model.create()
 model.model.summary()

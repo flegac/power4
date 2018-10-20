@@ -101,6 +101,9 @@ def p4_board_preparation(board: P4Board):
     return p1, p2
 
 
-gen = SampleGenerator('p4_testing', board_preparation=p4_board_preparation)
+gen = SampleGenerator('p4_fat_', board_preparation=p4_board_preparation)
 
-gen.gen_batch(batch_size=2, batch_number=5).concatenate()
+# gen.gen_batch(batch_size=1000, batch_number=10000)
+gen.concatenate('p4_fat')
+
+print('done !')
