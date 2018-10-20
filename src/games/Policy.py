@@ -62,6 +62,9 @@ class MctsPolicy2(Policy):
         self.after_play = after_play
         self.mcts = None
 
+    def reset(self):
+        self.mcts= None
+
     def update(self, action):
         if self.mcts:
             self.mcts = Mcts(root_node=self.mcts.tree.root.children()[action])
