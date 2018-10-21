@@ -13,8 +13,8 @@ from src.power4.P4Rules import P4Rules
 class SampleGenerator:
     def __init__(self, filename, board_preparation) -> None:
         self.filename = filename
-        self.game_generation_policy = MctsPolicy2(n=25)
-        self.evaluate = lambda state: Mcts(state).run(2000).tree.root.exploitation_score()
+        self.game_generation_policy = MctsPolicy2(n=50)
+        self.evaluate = lambda state: Mcts(state).run(500).tree.root.exploitation_score()
         self.board_preparation = board_preparation
 
     def gen_batch(self, batch_size: int, batch_number: int = 1):
@@ -22,7 +22,12 @@ class SampleGenerator:
             s1, s2, x, y = self.gen_samples(batch_size)
             assert len(s1) == len(s2) == len(x) == len(y) == batch_size
             name = '{}_n={}.{}'.format(self.filename, batch_size, k)
-            Dataset(name, x=x, y=y).save()
+            Dataset(name, data={
+                'x': x,
+                'y': y,
+                's1': s1,
+                's2': s2
+            }).save()
         print('done !')
         return self
 
@@ -33,15 +38,15 @@ class SampleGenerator:
         y = []
         for i in range(0, n):
             _s1, _s2, _x, _y = self._gen_sample()
-            s1.append(_s1)
-            s2.append(_s2)
+            s1.append(_s1.grid)
+            s2.append(_s2.grid)
             x.append(_x)
             y.append(_y)
 
             print('i: ', i)
-            print(_s1.board)
+            print(_s1)
             print('--[{}]-->'.format(y))
-            print(_s2.board)
+            print(_s2)
 
         return s1, s2, x, y
 
@@ -53,14 +58,14 @@ class SampleGenerator:
         game.run(on_state_change=lambda state: history.append(state.copy()))
 
         # state selection
-        index = random.randrange(0, -1)
+        index = random.randint(1, len(history) - 2)
         state1 = history[index]
         state2 = history[index + 1]
 
         # sample generation
         x = self._gen_sample_input(state1, state2)
         y = self._gen_sample_output(state1, state2)
-        return state1, state2, x, y
+        return state1.board, state2.board, x, y
 
     def _gen_sample_input(self, state1: State, state2: State) -> np.ndarray:
         p1, p2 = self.board_preparation(state1.board)

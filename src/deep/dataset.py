@@ -14,75 +14,81 @@ class Dataset:
         # 'class_mode': 'categorical'
     }
 
-    def __init__(self, name: str, x=None, y=None) -> None:
+    def __init__(self, name: str,
+                 features: set = None,
+                 data: dict = None,
+                 x_name: str = 'x',
+                 y_name: str = 'y') -> None:
+        if not data:
+            data = {key: [] for key in features}
+        if features:
+            data = {key: data[key] for key in features}
         self.name = name
-        self.x = x or []
-        self.y = y or []
+        self.data = data
+        self.x_name = x_name
+        self.y_name = y_name
+
+    def size(self):
+        return len(self.get(self.x_name))
 
     def generator(self, batch_size, **kwargs):
+        assert (len(self.get(self.y_name)) == self.size())
         data_generator = ImageDataGenerator(**kwargs)
-        x = np.array(self.x)
-        y = np.array(self.y)
+        x = np.array(self.get(self.x_name))
+        y = np.array(self.get(self.y_name))
         x = np.rollaxis(x, 1, 4)
         return data_generator.flow(x, y,
                                    batch_size=batch_size,
                                    **Dataset.flow_config
                                    )
-        # return data_generator.flow_from_directory(self.path,
-        #                                           target_size=(height, width),
-        #                                           batch_size=batch_size,
-        #                                           **Dataset.flow_config)
 
-    def set_data(self, x: [np.ndarray], y: [np.ndarray]):
-        self.x = x
-        self.y = y
+    def merge(self, dataset):
+        assert self.data.keys() == dataset.data.keys()
+        for key in dataset.data:
+            for x in dataset.get(key):
+                self.get(key).append(x)
         return self
 
     def split_by_size(self, size: int):
         split = []
-        for i in range(len(self.x) // size):
+        for i in range(self.size() // size):
             split.append(self.extract('{}_' + str(i), size))
-        if len(self.x) > 0:
+        if self.size() > 0:
             self.name += '_' + str(len(split))
             split.append(self)
         return split
 
     def extract(self, name: str, number: int):
-        x_extract = self.x[:number]
-        y_extract = self.y[:number]
-        self.x = self.x[number:]
-        self.y = self.y[number:]
-        return Dataset(name=name.format(self.name), x=x_extract, y=y_extract)
+        assert number >= self.size()
+        data = {}
+        for key in self.data:
+            data[key] = self.get(key)[:number]
+            self.data[key] = self.data[key][number:]
+        return Dataset(name=name.format(self.name), data=data)
 
     def load_all(self, path: str, prefix: str):
         for file in os.listdir(path):
             if file.startswith(prefix):
-                print(file)
+                print('load : ' + file)
                 self.load(os.path.join(path, file))
         return self
 
-    def filter(self, filter_func):
-        x = []
-        y = []
-        for i in range(len(x)):
-            if filter_func(x[i], y[i]):
-                x.append(x[i])
-                y.append(y[i])
-        self.x = x
-        self.y = y
-
     def save(self):
-        assert len(self.x) == len(self.y)
-        with tf.python_io.TFRecordWriter('{}_n={}.tfrecords'.format(self.name, len(self.x))) as writer:
-            for i in range(0, len(self.x)):
+        size = self.size()
+        for key in self.data:
+            assert len(self.get(key)) == size
+
+        with tf.python_io.TFRecordWriter('{}_n={}.tfrecords'.format(self.name, size)) as writer:
+            for i in range(0, size):
+                feature_map = {}
+                for key in self.data:
+                    feature_data = self.get(key)[i]
+                    feature_map[key] = _bytes_feature(feature_data.flatten().tostring())
+                    feature_map['{}_shape'.format(key)] = _int64_feature(feature_data.shape)
+
                 example = tf.train.Example(
                     features=tf.train.Features(
-                        feature={
-                            'X': _bytes_feature(self.x[i].flatten().tostring()),
-                            'X_shape': _int64_feature(self.x[i].shape),
-                            'Y': _bytes_feature(self.y[i].flatten().tostring()),
-                            'Y_shape': _int64_feature(self.y[i].shape),
-                        }))
+                        feature=feature_map))
                 writer.write(example.SerializeToString())
 
     def load(self, filename: str):
@@ -90,20 +96,24 @@ class Dataset:
         for string_record in record_iterator:
             example = tf.train.Example()
             example.ParseFromString(string_record)
-
-            _x = self.read_feature(example, 'X')
-            _y = self.read_feature(example, 'Y')
-
-            self.x.append(_x)
-            self.y.append(_y)
+            for key in self.data:
+                self.get(key).append(_read_feature(example, key))
         return self
 
-    @staticmethod
-    def read_feature(example: tf.train.Example, name: str):
-        shape = example.features.feature['{}_shape'.format(name)].int64_list.value
-        feat = example.features.feature[name].bytes_list.value[0]
-        feat = numpy.frombuffer(feat, dtype=np.float32).reshape(shape)
-        return feat
+    def get(self, key: str):
+        return self.data[key]
+
+    def rename(self, feature_name: str, new_name: str):
+        self.data[new_name] = self.data[feature_name]
+        del self.data[feature_name]
+        return self
+
+
+def _read_feature(example: tf.train.Example, name: str):
+    shape = example.features.feature['{}_shape'.format(name)].int64_list.value
+    feat = example.features.feature[name].bytes_list.value[0]
+    feat = numpy.frombuffer(feat, dtype=np.float32).reshape(shape)
+    return feat
 
 
 def _float_feature(value):

@@ -1,3 +1,7 @@
+from typing import Optional, Callable, Any, Iterable, Mapping
+
+import threading
+
 import numpy as np
 
 from src.power4.P4Board import P4Board
@@ -17,7 +21,6 @@ def p4_board_preparation(board: P4Board):
     return p1, p2
 
 
-SampleGenerator('p4_', board_preparation=p4_board_preparation) \
-    .gen_batch(batch_size=1000, batch_number=1000)
-
+SampleGenerator('p4_c', board_preparation=p4_board_preparation) \
+    .gen_batch(batch_size=1000, batch_number=10000)
 print('done !')
