@@ -22,9 +22,24 @@ class P4Model(MyModel):
         tmp = Activation('relu')(tmp)
         tmp = Conv2D(64, kernel_size=(3, 3), padding='same')(tmp)
         tmp = Activation('relu')(tmp)
+        tmp = Conv2D(64, kernel_size=(3, 3), padding='same')(tmp)
+        tmp = Activation('relu')(tmp)
+        tmp = Conv2D(64, kernel_size=(3, 3), padding='same')(tmp)
+        tmp = Activation('relu')(tmp)
+
+        tmp = Conv2D(64, kernel_size=(3, 3), padding='same')(tmp)
+        tmp = Activation('relu')(tmp)
+        tmp = Conv2D(64, kernel_size=(3, 3), padding='same')(tmp)
+        tmp = Activation('relu')(tmp)
+        tmp = Conv2D(64, kernel_size=(3, 3), padding='same')(tmp)
+        tmp = Activation('relu')(tmp)
+        tmp = Conv2D(64, kernel_size=(3, 3), padding='same')(tmp)
+        tmp = Activation('relu')(tmp)
+        tmp = Conv2D(64, kernel_size=(3, 3), padding='same')(tmp)
+        tmp = Activation('relu')(tmp)
 
         tmp = Flatten()(tmp)
-        tmp = Dense(256)(tmp)
+        tmp = Dense(64)(tmp)
         tmp = Activation('relu')(tmp)
 
         tmp = Dense(output_size)(tmp)
@@ -32,4 +47,4 @@ class P4Model(MyModel):
 
         model = Model(input_layer, output_layer)
 
-        return P4Model('p4_model_v0', model)
+        return P4Model('p4_model_v1', model)

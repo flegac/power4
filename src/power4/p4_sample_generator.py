@@ -1,8 +1,7 @@
-import os
 import random
 import numpy as np
 
-from src.deep.pipeline.dataset import Dataset
+from src.deep.dataset import Dataset
 from src.games.Game import Game
 from src.games.Policy import MctsPolicy2
 from src.games.mcts.Mcts import Mcts
@@ -17,15 +16,13 @@ class SampleGenerator:
         self.game_generation_policy = MctsPolicy2(n=25)
         self.evaluate = lambda state: Mcts(state).run(2000).tree.root.exploitation_score()
         self.board_preparation = board_preparation
-        self.x = []
-        self.y = []
 
     def gen_batch(self, batch_size: int, batch_number: int = 1):
         for k in range(batch_number):
             s1, s2, x, y = self.gen_samples(batch_size)
             assert len(s1) == len(s2) == len(x) == len(y) == batch_size
-            db = Dataset().set_data(x, y)
-            db.write('{}_n={}.{}.tfrecords'.format(self.filename, batch_size, k))
+            name = '{}_n={}.{}'.format(self.filename, batch_size, k)
+            Dataset(name, x=x, y=y).save()
         print('done !')
         return self
 
@@ -48,18 +45,6 @@ class SampleGenerator:
 
         return s1, s2, x, y
 
-    def concatenate(self, output_name=None):
-        if not output_name:
-            output_name = self.filename
-
-        dataset = Dataset()
-        for file in os.listdir('.'):
-            if file.startswith(self.filename):
-                print(file)
-                dataset.read(file)
-        dataset.write('{}_{}.tfrecords'.format(output_name, len(dataset.x)))
-        return self
-
     def _gen_sample(self) -> [np.ndarray]:
         # gen game state
         history = []
@@ -68,7 +53,7 @@ class SampleGenerator:
         game.run(on_state_change=lambda state: history.append(state.copy()))
 
         # state selection
-        index = random.randrange(-5, -1)
+        index = random.randrange(0, -1)
         state1 = history[index]
         state2 = history[index + 1]
 
@@ -86,24 +71,3 @@ class SampleGenerator:
         evaluation1 = self.evaluate(state1)
         evaluation2 = self.evaluate(state2)
         return np.array([evaluation2 - evaluation1], dtype=np.float32)
-
-
-def p4_board_preparation(board: P4Board):
-    p1_func = np.vectorize(lambda x: 1.0 if (x % 3) == 1 else 0)
-    p1 = p1_func(board.grid)
-
-    p2_func = np.vectorize(lambda x: -1.0 if (x % 3) == 2 else 0)
-    p2 = p2_func(board.grid)
-
-    # side = 1 if board.current_turn % 2 == 0 else -1
-    # initiative_side = np.full((P4Board.GRID_WIDTH, P4Board.GRID_HEIGHT), side)
-
-    return p1, p2
-
-
-gen = SampleGenerator('p4_fat_', board_preparation=p4_board_preparation)
-
-# gen.gen_batch(batch_size=1000, batch_number=10000)
-gen.concatenate('p4_fat')
-
-print('done !')

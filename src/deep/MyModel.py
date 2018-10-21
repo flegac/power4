@@ -3,7 +3,7 @@ import os
 
 from keras import models
 from keras.utils import plot_model
-
+import numpy as np
 
 class MyModel:
     workspace = 'E:/Flo/workspaces/models'
@@ -15,8 +15,10 @@ class MyModel:
     def save(self, name=None):
         if name is None:
             name = self.name
-        os.makedirs(MyModel._path(os.path.basename(name)))
-        self.model.save(MyModel._path(name))
+        save_path = MyModel._path(name)
+
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        self.model.save(save_path)
 
     def __init__(self, name: str, model) -> None:
         self.name = name
@@ -29,6 +31,7 @@ class MyModel:
         return self.model
 
     def predict(self, x):
+        x = np.rollaxis(np.array([x]), 1, 4)
         return self.model.predict(x, batch_size=1)
 
     def plot(self):

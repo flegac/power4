@@ -33,10 +33,9 @@ class MctsNode:
         return side * self.exploitation_score()
 
     def exploitation_score(self):
-
         # terminal states scores are certain (so score is better)
         if self.state.is_terminal:
-            return 10 * self.state.terminal_result
+            return self.state.terminal_result
 
         # unknown states are like a draw
         if self.games == 0:

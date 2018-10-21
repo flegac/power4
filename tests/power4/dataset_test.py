@@ -1,4 +1,4 @@
-from src.deep.pipeline.dataset import Dataset
+from src.deep.dataset import Dataset
 import numpy as np
 
 N = 1000
@@ -13,9 +13,9 @@ y_shape = [N, W]
 Y = np.random.random(y_shape).astype(np.float32)
 
 db = Dataset()
-db.write(X, Y)
+db.save(X, Y)
 
-dataset = db.read()
+dataset = db.load()
 
 for x in dataset:
     print(x[0])
