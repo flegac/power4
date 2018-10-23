@@ -1,12 +1,22 @@
 import json
 import os
 
+from keras.layers import *
 from keras import models
 from keras.utils import plot_model
 import numpy as np
 
+
 class MyModel:
     workspace = 'E:/Flo/workspaces/models'
+
+    @staticmethod
+    def stack_conv_layers(in_layer, n: int, internal_depth: int = 16):
+        layer = in_layer
+        for i in range(n):
+            layer = Conv2D(internal_depth, kernel_size=(3, 3), padding='same')(layer)
+            layer = Activation('relu')(layer)
+        return layer
 
     @staticmethod
     def load(name):

@@ -6,31 +6,20 @@ from src.power4.P4Board import P4Board
 
 
 class P4Model(MyModel):
+
     @staticmethod
-    def create():
+    def create(name: str, convlayer_number: int, conv_layer_depth: int, dense_size: int):
         img_width = P4Board.GRID_WIDTH
         img_height = P4Board.GRID_HEIGHT
         img_bands = 4
-
         output_size = 1
 
         input_layer = Input(shape=(img_width, img_height, img_bands,))
 
-        tmp = Conv2D(64, kernel_size=(3, 3), padding='same')(input_layer)
-        tmp = Activation('relu')(tmp)
-        tmp = Conv2D(64, kernel_size=(3, 3), padding='same')(tmp)
-        tmp = Activation('relu')(tmp)
-        tmp = Conv2D(64, kernel_size=(3, 3), padding='same')(tmp)
-        tmp = Activation('relu')(tmp)
-        tmp = Conv2D(64, kernel_size=(3, 3), padding='same')(tmp)
-        tmp = Activation('relu')(tmp)
-        tmp = Conv2D(64, kernel_size=(3, 3), padding='same')(tmp)
-        tmp = Activation('relu')(tmp)
-        tmp = Conv2D(64, kernel_size=(3, 3), padding='same')(tmp)
-        tmp = Activation('relu')(tmp)
+        tmp = MyModel.stack_conv_layers(input_layer, n=convlayer_number, internal_depth=conv_layer_depth)
 
         tmp = Flatten()(tmp)
-        tmp = Dense(64)(tmp)
+        tmp = Dense(dense_size)(tmp)
         tmp = Activation('relu')(tmp)
 
         tmp = Dense(output_size)(tmp)
@@ -38,4 +27,4 @@ class P4Model(MyModel):
 
         model = Model(input_layer, output_layer)
 
-        return P4Model('p4_model_v0', model)
+        return P4Model('p4_model_' + name, model)

@@ -7,7 +7,7 @@ from keras.preprocessing.image import ImageDataGenerator
 
 
 # https://medium.com/ymedialabs-innovation/how-to-use-tfrecord-with-datasets-and-iterators-in-tensorflow-with-code-samples-ffee57d298af
-class Dataset:
+class MyDataset:
     flow_config = {
         'seed': 2210,
         'shuffle': True
@@ -39,7 +39,7 @@ class Dataset:
         x = np.rollaxis(x, 1, 4)
         return data_generator.flow(x, y,
                                    batch_size=batch_size,
-                                   **Dataset.flow_config
+                                   **MyDataset.flow_config
                                    )
 
     def merge(self, dataset):
@@ -59,12 +59,12 @@ class Dataset:
         return split
 
     def extract(self, name: str, number: int):
-        assert number >= self.size()
+        assert number <= self.size()
         data = {}
         for key in self.data:
             data[key] = self.get(key)[:number]
             self.data[key] = self.data[key][number:]
-        return Dataset(name=name.format(self.name), data=data)
+        return MyDataset(name=name.format(self.name), data=data)
 
     def load_all(self, path: str, prefix: str):
         for file in os.listdir(path):

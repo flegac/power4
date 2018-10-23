@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-from src.deep.dataset import Dataset
+from src.deep.MyDataset import MyDataset
 from src.games.Game import Game
 from src.games.Policy import MctsPolicy2
 from src.games.mcts.Mcts import Mcts
@@ -13,16 +13,16 @@ from src.power4.P4Rules import P4Rules
 class SampleGenerator:
     def __init__(self, filename, board_preparation) -> None:
         self.filename = filename
-        self.game_generation_policy = MctsPolicy2(n=50)
-        self.evaluate = lambda state: Mcts(state).run(500).tree.root.exploitation_score()
+        self.game_generation_policy = MctsPolicy2(n=25)
+        self.evaluate = lambda state: Mcts(state).run(100).tree.root.exploitation_score()
         self.board_preparation = board_preparation
 
     def gen_batch(self, batch_size: int, batch_number: int = 1):
         for k in range(batch_number):
             s1, s2, x, y = self.gen_samples(batch_size)
             assert len(s1) == len(s2) == len(x) == len(y) == batch_size
-            name = '{}_n={}.{}'.format(self.filename, batch_size, k)
-            Dataset(name, data={
+            name = '{}.{}'.format(self.filename, k)
+            MyDataset(name, data={
                 'x': x,
                 'y': y,
                 's1': s1,
@@ -38,14 +38,14 @@ class SampleGenerator:
         y = []
         for i in range(0, n):
             _s1, _s2, _x, _y = self._gen_sample()
-            s1.append(_s1.grid)
-            s2.append(_s2.grid)
+            s1.append(_s1)
+            s2.append(_s2)
             x.append(_x)
             y.append(_y)
 
             print('i: ', i)
             print(_s1)
-            print('--[{}]-->'.format(y))
+            print('--[{}]-->'.format(_y))
             print(_s2)
 
         return s1, s2, x, y
@@ -65,7 +65,10 @@ class SampleGenerator:
         # sample generation
         x = self._gen_sample_input(state1, state2)
         y = self._gen_sample_output(state1, state2)
-        return state1.board, state2.board, x, y
+        return np.array(state1.board.grid, dtype=np.float32), \
+               np.array(state2.board.grid, dtype=np.float32), \
+               x, \
+               y
 
     def _gen_sample_input(self, state1: State, state2: State) -> np.ndarray:
         p1, p2 = self.board_preparation(state1.board)

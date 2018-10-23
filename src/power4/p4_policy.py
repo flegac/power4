@@ -1,7 +1,7 @@
 import random
 
 from src.deep.MyModel import MyModel
-from src.deep.dataset import Dataset
+from src.deep.MyDataset import MyDataset
 from src.games.Game import Game
 from src.games.Policy import Policy, MctsPolicy2
 from src.games.state.State import State

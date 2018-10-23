@@ -3,8 +3,7 @@ from src.power4.training.configs.config_0 import training_config
 from src.power4.training.configs.dataset_0 import training, validation
 from src.power4.training.models.model_0 import P4Model
 
-model = P4Model.create()
-# model = P4Model.load('p4_model')
+model = P4Model.create('v0', convlayer_number=6, conv_layer_depth=32, dense_size=64)
 model.model.summary()
 
 trainer = MyTrainer(training, validation, use_gpu=True)

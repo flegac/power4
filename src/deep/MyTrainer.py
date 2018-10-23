@@ -4,11 +4,11 @@ from tensorflow.python.client import device_lib
 
 from src.deep import TrainingConfig
 from src.deep.MyModel import MyModel
-from src.deep.dataset import Dataset
+from src.deep.MyDataset import MyDataset
 
 
 class MyTrainer:
-    def __init__(self, training: Dataset, validation: Dataset = None, use_gpu=False) -> None:
+    def __init__(self, training: MyDataset, validation: MyDataset = None, use_gpu=False) -> None:
         self.training = training
         self.validation = validation
         self.last_history = None
@@ -58,18 +58,18 @@ class MyTrainer:
         history = self.last_history
         epochs = range(1, len(history.epoch) + 1)
 
-        try:
-            acc = history.history['acc']
-            val_acc = history.history['val_acc']
-
-            plt.figure()
-            plt.title('Training and validation accuracy')
-            plt.plot(epochs, acc, 'red', label='Training acc')
-            plt.plot(epochs, val_acc, 'blue', label='Validation acc')
-            plt.legend()
-            plt.show()
-        except:
-            print('could not plot accuracy history !')
+        # try:
+        #     acc = history.history['acc']
+        #     val_acc = history.history['val_acc']
+        #
+        #     plt.figure()
+        #     plt.title('Training and validation accuracy')
+        #     plt.plot(epochs, acc, 'red', label='Training acc')
+        #     plt.plot(epochs, val_acc, 'blue', label='Validation acc')
+        #     plt.legend()
+        #     plt.show()
+        # except:
+        #     print('could not plot accuracy history !')
 
         try:
             loss = history.history['loss']
