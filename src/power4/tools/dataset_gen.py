@@ -1,6 +1,5 @@
 import numpy as np
 
-from src.deep.MyDataset import MyDataset
 from src.power4.P4Board import P4Board
 from src.power4.p4_sample_generator import SampleGenerator
 
