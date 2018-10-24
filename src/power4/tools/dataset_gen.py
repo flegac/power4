@@ -17,6 +17,6 @@ def p4_board_preparation(board: P4Board):
     return p1, p2
 
 
-SampleGenerator('p4_d', board_preparation=p4_board_preparation) \
-    .gen_batch(batch_size=500, batch_number=10000)
+SampleGenerator('p4_c', board_preparation=p4_board_preparation) \
+    .gen_batch(batch_size=500, batch_number=10000, target_path='0_raw')
 print('done !')

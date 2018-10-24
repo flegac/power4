@@ -1,4 +1,5 @@
 import os
+import random
 
 import numpy
 import numpy as np
@@ -42,12 +43,36 @@ class MyDataset:
                                    **MyDataset.flow_config
                                    )
 
+    def remove_dupplicates(self):
+        data = [tuple(self.get(self.x_name)[i]) for i in range(self.size())]
+        uniques, indices = np.unique(data, return_index=True, axis=0)
+
+        new_data = {key: list() for key in self.data}
+
+        for x in indices:
+            for key in self.data:
+                new_data[key].append(self.data[key][x])
+        self.data = new_data
+        return self
+
     def merge(self, dataset):
         assert self.data.keys() == dataset.data.keys()
         for key in dataset.data:
             for x in dataset.get(key):
                 self.get(key).append(x)
         return self
+
+    def split_by(self, key_func=None):
+        split = {}
+        for i in range(self.size()):
+            data = {x: self.get(x)[i] for x in self.data}
+            key = key_func(data)
+            split.setdefault(key, MyDataset('{}'.format(str(key)), features=set(self.data.keys()))).add(data)
+        return split
+
+    def add(self, data: dict):
+        for key in set(self.data.keys()):
+            self.data[key].append(data[key])
 
     def split_by_size(self, size: int):
         split = []
@@ -57,6 +82,13 @@ class MyDataset:
             self.name += '_' + str(len(split))
             split.append(self)
         return split
+
+    def shuffle(self):
+        indices = [x for x in range(self.size())]
+        random.shuffle(indices)
+        for key in self.data:
+            self.data[key] = np.array(self.data[key])[indices]
+        return self
 
     def extract(self, name: str, number: int):
         assert number <= self.size()
@@ -73,12 +105,14 @@ class MyDataset:
                 self.load(os.path.join(path, file))
         return self
 
-    def save(self):
+    def save(self, path='.'):
         size = self.size()
         for key in self.data:
             assert len(self.get(key)) == size
 
-        with tf.python_io.TFRecordWriter('{}_n={}.tfrecords'.format(self.name, size)) as writer:
+        filename = '{}_n={}.tfrecords'.format(self.name, size)
+        target_path = os.path.join(path, filename)
+        with tf.python_io.TFRecordWriter(target_path) as writer:
             for i in range(0, size):
                 feature_map = {}
                 for key in self.data:

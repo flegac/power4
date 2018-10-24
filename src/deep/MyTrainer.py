@@ -52,9 +52,9 @@ class MyTrainer:
         model.save('{}_final'.format(model.name))
         self.last_history = history
         self.total_epochs += training_config.epochs
-        self.show_history()
+        self.show_history(model.name)
 
-    def show_history(self):
+    def show_history(self, model_name):
         history = self.last_history
         epochs = range(1, len(history.epoch) + 1)
 
@@ -76,10 +76,36 @@ class MyTrainer:
             val_loss = history.history['val_loss']
 
             plt.figure()
-            plt.title('Training and validation loss')
+            plt.title('Training and validation loss : {}'.format(model_name))
             plt.plot(epochs, loss, 'red', label='Training loss')
             plt.plot(epochs, val_loss, 'blue', label='Validation loss')
             plt.legend()
             plt.show()
         except:
             print('could not plot loss function history !!')
+
+        try:
+            loss = history.history['mean_squared_error']
+            val_loss = history.history['val_mean_squared_error']
+
+            plt.figure()
+            plt.title('Training and validation mean_squared_error : {}'.format(model_name))
+            plt.plot(epochs, loss, 'red', label='Training mse')
+            plt.plot(epochs, val_loss, 'blue', label='Validation mse')
+            plt.legend()
+            plt.show()
+        except:
+            print('could not plot mse function history !!')
+
+        try:
+            loss = history.history['logcosh']
+            val_loss = history.history['val_logcosh']
+
+            plt.figure()
+            plt.title('Training and validation logcosh : {}'.format(model_name))
+            plt.plot(epochs, loss, 'red', label='Training logcosh')
+            plt.plot(epochs, val_loss, 'blue', label='Validation logcosh')
+            plt.legend()
+            plt.show()
+        except:
+            print('could not plot logcosh function history !!')

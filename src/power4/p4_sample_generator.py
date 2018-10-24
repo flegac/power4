@@ -1,4 +1,5 @@
 import random
+
 import numpy as np
 
 from src.deep.MyDataset import MyDataset
@@ -6,7 +7,6 @@ from src.games.Game import Game
 from src.games.Policy import MctsPolicy2
 from src.games.mcts.Mcts import Mcts
 from src.games.state.State import State
-from src.power4.P4Board import P4Board
 from src.power4.P4Rules import P4Rules
 
 
@@ -17,38 +17,28 @@ class SampleGenerator:
         self.evaluate = lambda state: Mcts(state).run(100).tree.root.exploitation_score()
         self.board_preparation = board_preparation
 
-    def gen_batch(self, batch_size: int, batch_number: int = 1):
+    def gen_batch(self, batch_size: int, batch_number: int = 1, target_path='.'):
         for k in range(batch_number):
-            s1, s2, x, y = self.gen_samples(batch_size)
-            assert len(s1) == len(s2) == len(x) == len(y) == batch_size
+            samples = self.gen_samples(batch_size)
             name = '{}.{}'.format(self.filename, k)
-            MyDataset(name, data={
-                'x': x,
-                'y': y,
-                's1': s1,
-                's2': s2
-            }).save()
+            db = MyDataset(name, features={'s1', 's2', 'x', 'y'})
+            for sample in samples:
+                db.add(sample)
+            db.remove_dupplicates().save(target_path)
         print('done !')
         return self
 
     def gen_samples(self, n: int) -> [np.ndarray]:
-        s1 = []
-        s2 = []
-        x = []
-        y = []
+        samples = []
         for i in range(0, n):
-            _s1, _s2, _x, _y = self._gen_sample()
-            s1.append(_s1)
-            s2.append(_s2)
-            x.append(_x)
-            y.append(_y)
-
+            sample = self._gen_sample()
             print('i: ', i)
-            print(_s1)
-            print('--[{}]-->'.format(_y))
-            print(_s2)
+            print(sample['s1'])
+            print('--[{}]-->'.format(sample['y']))
+            print(sample['s2'])
+            samples.append(sample)
 
-        return s1, s2, x, y
+        return samples
 
     def _gen_sample(self) -> [np.ndarray]:
         # gen game state
@@ -58,17 +48,16 @@ class SampleGenerator:
         game.run(on_state_change=lambda state: history.append(state.copy()))
 
         # state selection
-        index = random.randint(1, len(history) - 2)
+        index = random.randint(3, len(history) - 2)
         state1 = history[index]
         state2 = history[index + 1]
 
         # sample generation
-        x = self._gen_sample_input(state1, state2)
-        y = self._gen_sample_output(state1, state2)
-        return np.array(state1.board.grid, dtype=np.float32), \
-               np.array(state2.board.grid, dtype=np.float32), \
-               x, \
-               y
+        return {'s1': np.array(state1.board.grid, dtype=np.float32),
+                's2': np.array(state2.board.grid, dtype=np.float32),
+                'x': (self._gen_sample_input(state1, state2)),
+                'y': (self._gen_sample_output(state1, state2))
+                }
 
     def _gen_sample_input(self, state1: State, state2: State) -> np.ndarray:
         p1, p2 = self.board_preparation(state1.board)

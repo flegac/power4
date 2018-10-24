@@ -6,8 +6,8 @@ from src.deep.TrainingConfig import TrainingConfig
 json_log = open('training_logs.json', mode='wt', buffering=1)
 training_config = TrainingConfig(
     epochs=500,
-    batch_size=1024,
-    loss='mean_squared_error',
+    batch_size=16 * 1024,
+    loss='logcosh',
     optimizer='adadelta',
     # optimizer=optimizers.SGD(lr=1e-6, momentum=0.9),
     verbose=2,
