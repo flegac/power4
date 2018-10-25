@@ -1,13 +1,10 @@
-import random
+import numpy as np
 
 from src.deep.MyModel import MyModel
-from src.deep.MyDataset import MyDataset
 from src.games.Game import Game
 from src.games.Policy import Policy, MctsPolicy2
 from src.games.state.State import State
 from src.power4.P4Board import P4Board
-import numpy as np
-
 from src.power4.P4Rules import P4Rules
 
 
@@ -50,7 +47,7 @@ def _gen_sample_input(state1: State, state2: State) -> np.ndarray:
     return np.array([p1, p2, p3, p4], dtype=np.float32)
 
 
-policy = P4Policy(MyModel.load('p4_model_v5_final'))
+policy = P4Policy(MyModel.load('p4_model_v1_final'))
 
 computer_mcts = MctsPolicy2(n=2000, after_play=lambda mcts: print(mcts))
 

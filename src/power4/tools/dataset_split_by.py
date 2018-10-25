@@ -7,7 +7,7 @@ def current_turn(data: dict):
     return np.count_nonzero(s1)
 
 
-db = MyDataset('p4_fat', features={'x', 'y', 's1', 's2'}).load_all(path='1_uniques', prefix='p4_') \
+db = MyDataset('p4', features={'x', 'y', 's1', 's2'}).load_all(path='1_uniques', prefix='p4_') \
     .remove_dupplicates() \
     .split_by(key_func=current_turn)
 

@@ -1,5 +1,4 @@
 import json
-import keras.metrics as kmetrics
 
 
 class TrainingConfig:

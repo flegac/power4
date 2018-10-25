@@ -1,15 +1,11 @@
 import json
 import os
 
-from keras.layers import *
 from keras import models
-from keras.utils import plot_model
-import numpy as np
+from keras.layers import *
 
 
 class MyModel:
-    workspace = 'E:/Flo/workspaces/models'
-
     @staticmethod
     def stack_conv_layers(in_layer, n: int, internal_depth: int = 16):
         layer = in_layer
@@ -19,14 +15,10 @@ class MyModel:
         return layer
 
     @staticmethod
-    def load(name):
-        return MyModel(name, models.load_model(MyModel._path(name)))
+    def load(name: str, path: str):
+        return MyModel(name, models.load_model(path))
 
-    def save(self, name=None):
-        if name is None:
-            name = self.name
-        save_path = MyModel._path(name)
-
+    def save(self, save_path):
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         self.model.save(save_path)
 
@@ -43,16 +35,6 @@ class MyModel:
     def predict(self, x):
         x = np.rollaxis(np.array([x]), 1, 4)
         return self.model.predict(x, batch_size=1)
-
-    def plot(self):
-        plot_model(self.model, to_file=os.path.join(MyModel.workspace, self.name + '.png'))
-
-    def path(self):
-        return os.path.join(MyModel.workspace, self.name)
-
-    @staticmethod
-    def _path(name):
-        return os.path.join(MyModel.workspace, name, name + '.h5')
 
     def __str__(self):
         return json.dumps(self.model.to_json(),
